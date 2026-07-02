@@ -19,5 +19,13 @@ class AuthService {
     return null;
 
   }
+  List<String> getDoctors() {
+  return [
+    "Dr. Carlos Pérez",
+    "Dra. Ana Gómez",
+    "Dr. Luis Fernández",
+    "Dra. María Suárez",
+  ];
+}
 
 }

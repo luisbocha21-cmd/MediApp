@@ -1,3 +1,4 @@
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 import '../doctor/home_doctor.dart';
@@ -15,49 +16,61 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final AuthService authService = AuthService();
 
-  void login() {
+void login() {
 
-    String email = emailController.text.trim();
+  final rol = authService.login(
+    emailController.text,
+    passwordController.text,
+  );
 
-    if (email == "paciente@gmail.com") {
+  if (rol == "paciente") {
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomePatient(),
-        ),
-      );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const HomePatient(),
+      ),
+    );
 
-    } else if (email == "doctor@gmail.com") {
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomeDoctor(),
-        ),
-      );
-
-    } else if (email == "secretaria@gmail.com") {
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomeSecretary(),
-        ),
-      );
-
-    } else {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Usuario no encontrado"),
-        ),
-      );
-
-    }
+    return;
 
   }
+
+  if (rol == "doctor") {
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const HomeDoctor(),
+      ),
+    );
+
+    return;
+
+  }
+
+  if (rol == "secretaria") {
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const HomeSecretary(),
+      ),
+    );
+
+    return;
+
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("Usuario no encontrado"),
+    ),
+  );
+
+}
 
   @override
   Widget build(BuildContext context) {

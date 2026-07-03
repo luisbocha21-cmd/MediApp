@@ -1,42 +1,75 @@
 import 'package:flutter/material.dart';
+import '../../models/appointment_model.dart';
+import '../../services/appointment_service.dart';
+import '../../services/auth_service.dart';
 
 class HomeDoctor extends StatelessWidget {
-  const HomeDoctor({super.key});
+  HomeDoctor({super.key});
+
+  final AppointmentService service = AppointmentService();
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+  IconButton(
+    icon: const Icon(Icons.logout),
+    onPressed: () async {
+      await authService.logout();
+
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+    },
+  ),
+],
         title: const Text("Doctor"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              "Bienvenido Doctor",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+      body: StreamBuilder<List<AppointmentModel>>(
+        stream: service.getAppointments(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-            const SizedBox(height: 30),
+          final citas = snapshot.data!
+              .where((c) => c.estado == "Aprobada")
+              .toList();
 
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text("Ver citas del día"),
-            ),
+          if (citas.isEmpty) {
+            return const Center(
+              child: Text("No hay citas aprobadas"),
+            );
+          }
 
-            const SizedBox(height: 15),
+          return ListView.builder(
+            itemCount: citas.length,
+            itemBuilder: (context, index) {
+              final cita = citas[index];
 
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text("Historial de pacientes"),
-            ),
-          ],
-        ),
+              return Card(
+                margin: const EdgeInsets.all(10),
+                child: ListTile(
+                  title: Text(cita.doctorId),
+                  subtitle: Text(
+                    "${cita.pacienteId}\n${cita.estado}",
+                  ),
+                  isThreeLine: true,
+                  trailing: ElevatedButton(
+                    onPressed: () async {
+                      await service.atenderCita(cita.id);
+                    },
+                    child: const Text("Atender"),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

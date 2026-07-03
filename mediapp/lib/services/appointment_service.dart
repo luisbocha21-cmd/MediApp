@@ -30,4 +30,9 @@ class AppointmentService {
       'estado': 'Cancelada',
     });
   }
+  Future<void> atenderCita(String id) async {
+  await _db.collection('citas').doc(id).update({
+    'estado': 'Atendida',
+  });
+}
 }

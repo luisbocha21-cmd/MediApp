@@ -1,31 +1,45 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  String? login(String email, String password) {
+  Future<String?> login(String email, String password) async {
+    try {
+      UserCredential cred = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
 
-    email = email.trim().toLowerCase();
+      DocumentSnapshot doc =
+          await _db.collection('usuarios').doc(cred.user!.uid).get();
 
-    if (email == "paciente@gmail.com") {
-      return "paciente";
+      if (doc.exists) {
+        return doc['rol'];
+      }
+
+      return null;
+    } catch (e) {
+      return null;
     }
-
-    if (email == "doctor@gmail.com") {
-      return "doctor";
-    }
-
-    if (email == "secretaria@gmail.com") {
-      return "secretaria";
-    }
-
-    return null;
-
   }
-  List<String> getDoctors() {
-  return [
-    "Dr. Carlos Pérez",
-    "Dra. Ana Gómez",
-    "Dr. Luis Fernández",
-    "Dra. María Suárez",
-  ];
+  String? getCurrentUserId() {
+  return _auth.currentUser?.uid;
 }
 
+  Future<void> logout() async {
+    await _auth.signOut();
+  }
+
+  Future<List<String>> getDoctors() async {
+    QuerySnapshot datos = await _db
+        .collection('usuarios')
+        .where('rol', isEqualTo: 'doctor')
+        .get();
+
+    return datos.docs
+        .map((e) => e['nombre'].toString())
+        .toList();
+  }
 }

@@ -18,58 +18,48 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final AuthService authService = AuthService();
 
-void login() {
+Future<void> login() async {
 
-  final rol = authService.login(
+  final rol = await authService.login(
     emailController.text,
     passwordController.text,
   );
 
   if (rol == "paciente") {
-
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const HomePatient(),
+        builder: (_) =>  HomePatient(),
       ),
     );
-
     return;
-
   }
 
   if (rol == "doctor") {
-
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const HomeDoctor(),
+        builder: (_) => HomeDoctor(),
       ),
     );
-
     return;
-
   }
 
   if (rol == "secretaria") {
-
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const HomeSecretary(),
+        builder: (_) =>  HomeSecretary(),
       ),
     );
-
     return;
-
   }
 
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
-      content: Text("Usuario no encontrado"),
+      content: Text("Correo o contraseña incorrectos"),
     ),
   );
-
 }
 
   @override

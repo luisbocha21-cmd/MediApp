@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../models/appointment_model.dart';
 import '../../services/appointment_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateAppointment extends StatefulWidget {
   const CreateAppointment({super.key});
@@ -31,13 +32,20 @@ DateTime? fechaSeleccionada;
   return;
 
 }
+    final usuario = await FirebaseFirestore.instance
+    .collection("usuarios")
+    .doc(authService.getCurrentUserId())
+    .get();
+
+final nombrePaciente = usuario["nombre"];
 
     final cita = AppointmentModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      pacienteId: "Paciente Demo",
+      pacienteId: authService.getCurrentUserId() ?? "",
       doctorId: doctorSeleccionado ?? "",
       fecha: fechaSeleccionada ?? DateTime.now(),
       estado: "Pendiente",
+      pacienteNombre: nombrePaciente,
     );
 
     await service.addAppointment(cita);
@@ -86,26 +94,32 @@ DateTime? fechaSeleccionada;
 
           children: [
 
-            DropdownButtonFormField<String>(
-  value: doctorSeleccionado,
-  decoration: const InputDecoration(
-    labelText: "Seleccione un doctor",
-  ),
-  items: authService.getDoctors().map((doctor) {
+FutureBuilder<List<String>>(
+  future: authService.getDoctors(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const CircularProgressIndicator();
+    }
 
-    return DropdownMenuItem(
-      value: doctor,
-      child: Text(doctor),
+    final doctores = snapshot.data!;
+
+    return DropdownButtonFormField<String>(
+      value: doctorSeleccionado,
+      decoration: const InputDecoration(
+        labelText: "Seleccione un doctor",
+      ),
+      items: doctores.map((doctor) {
+        return DropdownMenuItem(
+          value: doctor,
+          child: Text(doctor),
+        );
+      }).toList(),
+      onChanged: (valor) {
+        setState(() {
+          doctorSeleccionado = valor;
+        });
+      },
     );
-
-  }).toList(),
-
-  onChanged: (valor) {
-
-    setState(() {
-      doctorSeleccionado = valor;
-    });
-
   },
 ),
 const SizedBox(height: 20),

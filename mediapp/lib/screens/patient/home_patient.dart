@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
 import '../appointment/create_appointment.dart';
 import '../appointment/appointment_list.dart';
+import '../../services/auth_service.dart';
 class HomePatient extends StatelessWidget {
-  const HomePatient({super.key});
+  HomePatient({super.key});
 
+  final AuthService authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+  IconButton(
+    icon: const Icon(Icons.logout),
+    onPressed: () async {
+      await authService.logout();
+
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+    },
+  ),
+],
         title: const Text("Paciente"),
       ),
       body: Padding(

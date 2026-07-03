@@ -3,6 +3,7 @@ class AppointmentModel {
   final String pacienteId;
   final String doctorId;
   final DateTime fecha;
+  final String pacienteNombre;
   String estado;
 
   AppointmentModel({
@@ -11,6 +12,7 @@ class AppointmentModel {
     required this.doctorId,
     required this.fecha,
     required this.estado,
+    required this.pacienteNombre,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class AppointmentModel {
       'doctorId': doctorId,
       'fecha': fecha.toIso8601String(),
       'estado': estado,
+      'pacienteNombre': pacienteNombre,
     };
   }
 
@@ -30,6 +33,7 @@ class AppointmentModel {
       doctorId: map['doctorId'],
       fecha: DateTime.parse(map['fecha']),
       estado: map['estado'],
+      pacienteNombre: map['pacienteNombre'] ?? "",
     );
   }
 }

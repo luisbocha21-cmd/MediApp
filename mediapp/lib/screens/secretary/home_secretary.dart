@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/appointment_model.dart';
 import '../../services/appointment_service.dart';
-
+import '../../services/auth_service.dart';
 class HomeSecretary extends StatefulWidget {
   const HomeSecretary({super.key});
 
@@ -11,11 +11,24 @@ class HomeSecretary extends StatefulWidget {
 
 class _HomeSecretaryState extends State<HomeSecretary> {
   final AppointmentService service = AppointmentService();
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+  IconButton(
+    icon: const Icon(Icons.logout),
+    onPressed: () async {
+      await authService.logout();
+
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+    },
+  ),
+],
         title: const Text("Secretaria"),
       ),
       body: StreamBuilder<List<AppointmentModel>>(
